@@ -1,13 +1,22 @@
 const express = require('express')
-
+const router = require('./routes/tasks')
+const connectDb = require('./database/connection')
+require('dotenv').config()
 const app = express()
-
 const port = 3000
 
-app.get('/',(req,res)=>{
-  res.send('hello')
-})
+app.use(express.json())
+app.use('/api/v1/tasks',router)
 
-app.listen(port,()=>{
-  console.log(`App is listening to post ${port}...`)
-})
+
+const start = async ()=>{
+  try{
+    await connectDb(process.env.MONGO_URI)
+    app.listen(port,console.log(`App is listening to post ${port}...`))
+  }
+  catch(err){
+    console.log(err)
+  }
+}
+
+start()
