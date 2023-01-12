@@ -9,7 +9,7 @@ const {
 } = require('../controllers/task')
 
 router.route('/').get(getAllTasks).post(addNewTask)
-router.route('/id=:id').get(getTask).patch(updateTask).delete(deleteTask)
+router.route('/search').get(getTask).patch(updateTask).delete(deleteTask)
 
 
 module.exports = router
