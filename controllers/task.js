@@ -38,7 +38,7 @@ const getTask = async (req,res)=>{
 const updateTask = async (req,res)=>{
   try{
     const {id}=req.query
-    await Task.updateOne({_id:id},{$set:req.body},{
+    await Task.updateOne({_id:id},{$set:{completed:true}},{
       new:true,
       runValidators:true
     })

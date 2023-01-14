@@ -3,47 +3,69 @@ let addInput = addBox.querySelector('.add_input');
 let addBtn = addBox.querySelector('.add_btn');
 let toDoLists = document.querySelector('.to_do_lists')
 
-addBtn.addEventListener('click',()=>{
+window.addEventListener('load',async ()=>{
+  getAllTasks()
+})
+
+addBtn.addEventListener('click',async ()=>{
   let taskText = addInput.value
-  addNewTask(taskText)
+  await addNewTask({name:taskText})
+  addInput.value =''
+  getAllTasks()
 })
 
 async function addNewTask(task){
-  await fetch('/api/v1/task',{
+  await fetch('/api/v1/tasks',{
     method :'POST',
     headers: {'Content-Type': 'application/json;charset=utf-8'},
     body : JSON.stringify(task)
   })
-
-  //loading all items again after adding new task
-  getAllTasks()
 }
 
 async function getAllTasks(){
-  let response = await fetch('/api/v1/task',{
-    method :'GET'
-  })
+  let response = await fetch('/api/v1/tasks')
   let data = await response.json()
-  
+
+  toDoLists.innerHTML=``
+
   for(let task of data){
     let items = document.createElement('div')
     items.classList.add('items')
+    items.setAttribute('task-id',task._id)
+
     items.innerHTML = `
     <div class="task_details">
-      <img src="" alt="" class="checked_icon">
-      <div class="task_text">${task.name}</div>
+      <img src="./icons/checked.svg" alt="" class="checked_icon ${task.completed === false? "display_none":""}">
+      <div class="task_text ${task.completed === true? "text_crossed":""}">${task.name}</div>
     </div>
     <div class="task_icons">
-      <img src="" alt="" class="edit_icon" onclick="editTask()">
-      <img src="" alt="" class="delete_icon onclick="deleteTask()">
+      <img src="./icons/done.svg" alt="" class="done_icon ${task.completed === true? "display_none":""}" onclick="doneTask(event)">
+      <img src="./icons/delete.svg" alt="" class="delete_icon" onclick="deleteTask(event)">
     </div>
     `
     toDoLists.append(items)
   }
 }
 
-async function deleteTask(id){
-  await fetch(`/api/v1/task/search?id=${id}`)
+async function doneTask(event){
+  let taskItem = event.currentTarget.parentElement.parentElement
+  let taskId = taskItem.getAttribute('task-id')
+
+  await fetch(`/api/v1/tasks/search?id=${taskId}`,{
+    method:'PATCH'
+  })
+
+  //loading all items again after deleting one task
+  await getAllTasks()
+}
+
+async function deleteTask(event){
+  let taskItem = event.currentTarget.parentElement.parentElement
+  let taskId = taskItem.getAttribute('task-id')
+
+  await fetch(`/api/v1/tasks/search?id=${taskId}`,{
+    method:'DELETE'
+  })
 
   //loading all items again after deleting one task
   await getAllTasks()
