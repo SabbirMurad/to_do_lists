@@ -36,10 +36,12 @@ const getTask = async (req,res)=>{
 
 //update a task
 const updateTask = async (req,res)=>{
-  console.log(req.body)
   try{
     const {id}=req.query
-    await Task.updateOne({_id:id},{$set:{completed:req.body.completed}})
+    await Task.updateOne({_id:id},{$set:req.body},{
+      new:true,
+      runValidators:true
+    })
     res.status(201).send("Updated this task")
   }
   catch(err){
